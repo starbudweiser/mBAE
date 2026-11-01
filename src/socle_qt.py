@@ -10,15 +10,17 @@ Utilisation :
     socle_qt.variant(bouton, "primary")          # primary | action | secondary | tertiary
     socle_qt.role(label, "title")                # title | heading | display | eyebrow | meta | mono | path | muted | subtle
     socle_qt.status(label, "success")            # success | warning | danger | none (+ repolish auto)
-    socle_qt.brand(app, "sKYCRASH", "#ff7a00")   # initiale du nom de l'appli dans la couleur de son logo
+    socle_qt.brand(app, "sKYCRASH", "#ff7a00")   # minuscule du nom de l'appli dans la couleur de son logo
+    socle_qt.traduire_qt(app, "fr")              # menus et boutons fournis par Qt dans la langue de l'appli
+    # Les fenêtres se centrent seules à leur première ouverture (apply) ; socle_qt.centrer(fenetre) pour le faire à la main.
 """
 import html
 import os
 import re
 import tempfile
 
-from PyQt6.QtGui import QColor, QFont, QFontDatabase, QPalette
-from PyQt6.QtCore import QEvent, QObject, Qt
+from PyQt6.QtGui import QColor, QCursor, QFont, QFontDatabase, QGuiApplication, QPalette
+from PyQt6.QtCore import QEvent, QLibraryInfo, QObject, Qt, QTimer, QTranslator
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QHBoxLayout, QLabel, QPushButton, QRadioButton, QSizePolicy,
                              QWidget)
 
@@ -317,8 +319,39 @@ def fit_height(window: QWidget) -> QWidget:
     return window
 
 
-# Nom de l'appli : son initiale en minuscule (le « m » de mORTEX, le « s » de sKYCRASH, « cs » de
-# csSETTINGS…) prend la couleur de son logo partout où le nom est écrit dans un QLabel (titres, textes,
+def centrer(window: QWidget) -> QWidget:
+    """Centre la fenêtre sur l'écran du pointeur, dans sa zone utile (hors barre des menus et Dock)."""
+    ecran = QGuiApplication.screenAt(QCursor.pos()) or QGuiApplication.primaryScreen()
+    zone = ecran.availableGeometry()
+    cadre = window.frameGeometry()
+    window.move(max(zone.left(), zone.center().x() - cadre.width() // 2),
+                max(zone.top(), zone.center().y() - cadre.height() // 2))
+    return window
+
+
+class _Centrage(QObject):
+    def eventFilter(self, obj, event):
+        if (event.type() == QEvent.Type.Show and isinstance(obj, QWidget) and obj.isWindow()
+                and obj.windowType() == Qt.WindowType.Window and not obj.property("socle_centre")):
+            obj.setProperty("socle_centre", True)
+            if not obj.testAttribute(Qt.WidgetAttribute.WA_Moved):  # une fenêtre placée par l'appli (splash) reste où elle est
+                centrer(obj)
+                recentrage = QTimer(obj)  # la barre de titre ne compte dans le cadre qu'une fois la fenêtre affichée
+                recentrage.setSingleShot(True)
+                recentrage.timeout.connect(lambda: centrer(obj))
+                recentrage.start(0)
+        return False
+
+
+def traduire_qt(app: QApplication, langue: str) -> None:
+    """Traduit ce que Qt écrit lui-même (menu de l'appli sur macOS, boutons standard) : à appeler avant de créer les menus."""
+    traduction = QTranslator(app)
+    if traduction.load(f"qtbase_{langue}", QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)):
+        app.installTranslator(traduction)
+
+
+# Nom de l'appli : sa lettre minuscule, à toute place (le « m » de mORTEX, le « s » de sKYCRASH, le « e » de
+# CAREERDeSK…) prend la couleur de son logo partout où le nom est écrit dans un QLabel (titres, textes,
 # dialogues, QMessageBox). Titres de fenêtre, menus et boutons natifs n'affichent pas de texte riche.
 _brand: dict = {}
 _QLABEL_SET_TEXT = QLabel.setText
@@ -326,12 +359,12 @@ _QLABEL_SET_TEXT = QLabel.setText
 
 def _brand_sub(fragment: str) -> str:
     for rx in _brand["res"]:
-        fragment = rx.sub(lambda mt: _brand["span"].format(mt.group(1)) + mt.group(2), fragment)
+        fragment = rx.sub(lambda mt: "".join(_brand["span"].format(c) if c.islower() else c for c in mt.group()), fragment)
     return fragment
 
 
 def brand_html(text: str) -> str:
-    """Texte (brut ou riche) avec l'initiale du nom de l'appli colorée, pour un widget en texte riche."""
+    """Texte (brut ou riche) avec la lettre minuscule du nom de l'appli colorée, pour un widget en texte riche."""
     if not _brand or not any(rx.search(text) for rx in _brand["res"]):
         return text
     if re.search(r"<[A-Za-z!/]", text):
@@ -357,7 +390,7 @@ class _BrandFilter(QObject):
 
 
 def brand(app: QApplication, names, color: str) -> None:
-    """Colore l'initiale minuscule du nom de l'appli dans tous ses QLabel.
+    """Colore la lettre minuscule du nom de l'appli dans tous ses QLabel.
 
     names : nom de l'appli (« sKYCRASH ») ou liste de graphies (« fOMODSIM », « fOMOD_SIM ») ;
     color : couleur du logo. Couvre les textes posés par setText() et ceux des dialogues Qt
@@ -365,9 +398,8 @@ def brand(app: QApplication, names, color: str) -> None:
     """
     rxs = []
     for name in [names] if isinstance(names, str) else names:
-        head = re.match(r"[a-z]+", name)
-        if head:  # pas dans un mot, un chemin, un identifiant de paquet ni une adresse
-            rxs.append(re.compile(rf"(?<![\w.@/-])({re.escape(head.group())})({re.escape(name[head.end():])})(?![\w-])"))
+        if any(c.islower() for c in name):  # pas dans un mot, un chemin, un identifiant de paquet ni une adresse
+            rxs.append(re.compile(rf"(?<![\w.@/-]){re.escape(name)}(?![\w-])"))
     if not rxs:
         return
     _brand.update(res=rxs, span=f'<span style="color:{color}">{{}}</span>')
@@ -607,4 +639,7 @@ def apply(app: QApplication, theme: str = "dark", full: bool = True) -> None:
     app.setFont(font("body"))
     app.setPalette(palette(theme))
     app.setStyleSheet(qss(theme, full))
+    if not hasattr(app, "_socle_centrage"):
+        app._socle_centrage = _Centrage(app)
+        app.installEventFilter(app._socle_centrage)
 
