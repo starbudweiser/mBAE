@@ -3,7 +3,7 @@ import struct
 import sys
 import zlib
 import socle_qt
-import update_check
+import updater
 from i18n import get_lang
 from i18n import L, N_
 from lang_button import LangButton, init_lang
@@ -559,5 +559,5 @@ if __name__ == "__main__":
     init_lang(settings)
     win = MainWindow(settings)
     win.show()
-    update_check.start_qt(win, "mBAE", lang=get_lang)  # nouvelle version ? (au plus une fois par jour)
+    updater.start_qt(win, "mBAE", lang=get_lang)  # nouvelle version ? (au plus une fois par jour)
     sys.exit(app.exec())
