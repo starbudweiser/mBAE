@@ -5,6 +5,8 @@
 
 🇬🇧 [English](#-english) · 🇫🇷 [Français](#-français)
 
+💬 **Support & community:** [Discord](https://discord.gg/xdDVDPQsYs) · *Aide et communauté : [Discord](https://discord.gg/xdDVDPQsYs)*
+
 ---
 ## 🇬🇧 English
 
