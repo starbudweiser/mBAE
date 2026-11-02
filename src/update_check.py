@@ -5,7 +5,7 @@ appli par _tools/sync_shared.sh. Ne pas le modifier dans une appli.
 
 - Au plus une requête par jour (api.github.com), seulement dans l'appli compilée (version lue dans Info.plist).
 - « Ignorer cette version » n'affiche plus rien jusqu'à la version suivante.
-- Le bouton ouvre la page Nexus de l'outil, où se trouve le téléchargement.
+- Le bouton ouvre la page GitHub Releases de l'outil (releases/latest), où se trouve le téléchargement notarisé.
 """
 from __future__ import annotations
 
@@ -21,19 +21,22 @@ import webbrowser
 from pathlib import Path
 
 OWNER = "starbudweiser"
-KIT_PAGE = "https://www.nexusmods.com/skyrimspecialedition/mods/196272?tab=files"
 DAY = 24 * 3600
 
 TEXTS = {
     "fr": {"title": "Nouvelle version", "body": "{app} {new} est disponible (vous avez la {cur}).",
-           "open": "Ouvrir la page Nexus", "later": "Plus tard", "skip": "Ignorer cette version"},
+           "open": "Ouvrir la page de téléchargement", "later": "Plus tard", "skip": "Ignorer cette version"},
     "en": {"title": "New version", "body": "{app} {new} is available (you have {cur}).",
-           "open": "Open the Nexus page", "later": "Later", "skip": "Skip this version"},
+           "open": "Open the download page", "later": "Later", "skip": "Skip this version"},
     "es": {"title": "Nueva versión", "body": "{app} {new} está disponible (tienes la {cur}).",
-           "open": "Abrir la página de Nexus", "later": "Más tarde", "skip": "Omitir esta versión"},
+           "open": "Abrir la página de descarga", "later": "Más tarde", "skip": "Omitir esta versión"},
     "it": {"title": "Nuova versione", "body": "{app} {new} è disponibile (hai la {cur}).",
-           "open": "Apri la pagina Nexus", "later": "Più tardi", "skip": "Ignora questa versione"},
+           "open": "Apri la pagina di download", "later": "Più tardi", "skip": "Ignora questa versione"},
 }
+
+
+def release_page(repo: str) -> str:
+    return f"https://github.com/{OWNER}/{repo}/releases/latest"
 
 
 def texts(lang: str) -> dict:
@@ -134,7 +137,7 @@ def _prepare(repo: str, lang):
     return current, state, name, (lambda: (lang() if callable(lang) else lang) or _system_lang())
 
 
-def start_qt(parent, repo: str, page: str = KIT_PAGE, lang=None) -> None:
+def start_qt(parent, repo: str, page: str | None = None, lang=None) -> None:
     """PyQt6 : vérification en arrière-plan, puis fenêtre de choix dans le fil de l'interface."""
     prep = _prepare(repo, lang)
     if not prep:
@@ -161,7 +164,7 @@ def start_qt(parent, repo: str, page: str = KIT_PAGE, lang=None) -> None:
         box.addButton(t["later"], QMessageBox.ButtonRole.RejectRole)
         box.exec()
         if box.clickedButton() is open_b:
-            webbrowser.open(page)
+            webbrowser.open(page or release_page(repo))
         elif box.clickedButton() is skip_b:
             skip(state, new)
 
@@ -176,7 +179,7 @@ def start_qt(parent, repo: str, page: str = KIT_PAGE, lang=None) -> None:
     threading.Thread(target=run, daemon=True).start()
 
 
-def start_webview(window, repo: str, page: str = KIT_PAGE, lang=None) -> None:
+def start_webview(window, repo: str, page: str | None = None, lang=None) -> None:
     """pywebview : vérification en arrière-plan, puis boîte de confirmation de la fenêtre."""
     prep = _prepare(repo, lang)
     if not prep:
@@ -190,6 +193,6 @@ def start_webview(window, repo: str, page: str = KIT_PAGE, lang=None) -> None:
         t = texts(get_lang())
         msg = t["body"].format(app=name, new=new, cur=current) + f"\n\n{t['open']} ?"
         if window.create_confirmation_dialog(t["title"], msg):  # « Annuler » = plus tard
-            webbrowser.open(page)
+            webbrowser.open(page or release_page(repo))
 
     threading.Thread(target=run, daemon=True).start()
