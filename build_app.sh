@@ -49,7 +49,7 @@ mv "$TMP_DIR/dist/$APP_NAME.app" "$ROOT/$APP_NAME.app"
 # le dépôt GitHub seul), signature ad hoc pour que l'appli se lance quand même.
 SIGN_APP="$(cd "$ROOT/.." && pwd)/_tools/sign_app.sh"
 if [ -x "$SIGN_APP" ]; then
-    "$SIGN_APP" "$ROOT/$APP_NAME.app" 1.3.0
+    "$SIGN_APP" "$ROOT/$APP_NAME.app" 1.3.1
 else
     echo "_tools/sign_app.sh absent : signature ad hoc."
     codesign --force --deep --sign - "$ROOT/$APP_NAME.app"

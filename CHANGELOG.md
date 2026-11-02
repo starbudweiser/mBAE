@@ -2,6 +2,16 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
+## 1.3.1
+
+**English**
+
+- The window title is now translated: “mBAE – Bethesda archive extractor”.
+
+**Français**
+
+- Le titre de la fenêtre est maintenant traduit : « mBAE – Extracteur d'archives Bethesda ».
+
 ## 1.3.0
 
 **English**
