@@ -376,7 +376,6 @@ class MainWindow(QMainWindow):
 
     def __init__(self, settings: QSettings):
         super().__init__()
-        self.setWindowTitle("Bethesda Archive Extractor for MacOS")
         self.status = (N_("En attente"), {})  # (clé française, paramètres), retraduit au changement de langue
         self.resize(880, 580)
         self.setStyleSheet(APP_STYLE)
@@ -444,6 +443,7 @@ class MainWindow(QMainWindow):
 
     def apply_texts(self):
         """(Re)traduit l'interface dans la langue active."""
+        self.setWindowTitle("mBAE – " + L("Extracteur d'archives Bethesda"))
         self.btn_open.setText("📦 " + L("Ouvrir une archive (.bsa / .ba2)"))
         self.btn_extract.setText(L("EXTRAIRE TOUT"))
         self.table.setHorizontalHeaderLabels([L("Chemin du fichier"), L("Taille brute"), L("Type d'archive")])

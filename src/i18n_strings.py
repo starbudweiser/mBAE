@@ -6,6 +6,8 @@ tests/test_i18n.py).
 
 TR = {
     # ------------------------------------------------------------ fenêtre
+    "Extracteur d'archives Bethesda": (
+        "Bethesda archive extractor", "Estrattore di archivi Bethesda", "Extractor de archivos de Bethesda"),
     "Ouvrir une archive (.bsa / .ba2)": (
         "Open an archive (.bsa / .ba2)", "Apri un archivio (.bsa / .ba2)", "Abrir un archivo (.bsa / .ba2)"),
     "Glisse-dépose une archive n'importe où ici.": (
