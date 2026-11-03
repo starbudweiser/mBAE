@@ -6,7 +6,7 @@ import socle_qt
 import updater
 from i18n import get_lang
 from i18n import L, N_
-from lang_button import LangButton, init_lang
+from app_lang import init_lang, install_menu
 from PyQt6.QtCore import QSettings, Qt, QThread, pyqtSignal
 from PyQt6.QtWidgets import (
     QAbstractItemView,
@@ -401,8 +401,6 @@ class MainWindow(QMainWindow):
         self.lbl_info.setStyleSheet("color: #8f8f8f;")
         top_bar.addWidget(self.lbl_info)
         top_bar.addStretch()
-        self.btn_lang = LangButton(settings, self.apply_texts)
-        top_bar.addWidget(self.btn_lang)
 
         layout.addLayout(top_bar)
 
@@ -558,6 +556,7 @@ if __name__ == "__main__":
     settings = QSettings("mBAE", "mBAE")
     init_lang(settings)
     win = MainWindow(settings)
+    install_menu(win, settings, win.apply_texts)  # menu « Langue » de la barre de menus
     win.show()
     updater.start_qt(win, "mBAE", lang=get_lang)  # nouvelle version ? (au plus une fois par jour)
     sys.exit(app.exec())

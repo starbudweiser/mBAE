@@ -3,6 +3,7 @@ import ast
 import re
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent / "src"
@@ -43,14 +44,18 @@ class TestI18n(unittest.TestCase):
         self.assertEqual(stale, [], "clés orphelines dans TR")
 
     def test_switch(self):
-        try:
-            i18n.set_lang("en")
-            self.assertEqual(i18n.L("Langue : {name}", name="English"), "Language: English")
-            i18n.set_lang("it")
-            self.assertEqual(i18n.L("Automatique ({lang})", lang="x"), "Automatica (x)")
-        finally:
-            i18n.set_lang("fr")
-        self.assertEqual(i18n.L("Langue : {name}", name="x"), "Langue : x")
+        import i18n_strings
+        sample = {"Fichier : {name}": ("File: {name}", "File: {name}", "Archivo: {name}"),
+                  "Automatique ({lang})": ("Automatic ({lang})", "Automatica ({lang})", "Automático ({lang})")}
+        with mock.patch.dict(i18n_strings.TR, sample):
+            try:
+                i18n.set_lang("en")
+                self.assertEqual(i18n.L("Fichier : {name}", name="x"), "File: x")
+                i18n.set_lang("it")
+                self.assertEqual(i18n.L("Automatique ({lang})", lang="x"), "Automatica (x)")
+            finally:
+                i18n.set_lang("fr")
+            self.assertEqual(i18n.L("Fichier : {name}", name="x"), "Fichier : x")
 
     def test_system_lang(self):
         self.assertEqual(i18n.system_lang(["it-IT", "en-US"]), "it")

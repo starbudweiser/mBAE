@@ -21,8 +21,6 @@ TR = {
     "(Brut)": ("(Raw)", "(Grezzo)", "(Bruto)"),
     "EXTRAIRE TOUT": ("EXTRACT ALL", "ESTRAI TUTTO", "EXTRAER TODO"),
     "{name} — {type} ({n} fichiers)": ("{name} — {type} ({n} files)", "{name} — {type} ({n} file)", "{name} — {type} ({n} archivos)"),
-    "Langue : {name}": ("Language: {name}", "Lingua: {name}", "Idioma: {name}"),
-    "Automatique ({lang})": ("Automatic ({lang})", "Automatica ({lang})", "Automático ({lang})"),
     # ------------------------------------------------------------ dialogues
     "Sélectionner une archive Bethesda": ("Select a Bethesda archive", "Seleziona un archivio Bethesda", "Seleccionar un archivo de Bethesda"),
     "Archives Bethesda": ("Bethesda archives", "Archivi Bethesda", "Archivos de Bethesda"),

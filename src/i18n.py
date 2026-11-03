@@ -8,7 +8,6 @@ Module sans dépendance Qt.
 from __future__ import annotations
 
 LANGS = {"fr": "Français", "en": "English", "it": "Italiano", "es": "Español"}
-FLAGS = {"fr": "🇫🇷", "en": "🇬🇧", "it": "🇮🇹", "es": "🇪🇸"}
 _INDEX = {"en": 0, "it": 1, "es": 2}
 _lang = "fr"
 
