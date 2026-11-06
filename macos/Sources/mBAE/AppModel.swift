@@ -12,7 +12,7 @@ struct Row: Identifiable {
     let name: String
     let size: Int
     let compressed: Bool
-    var sizeText: String { String(format: "%.1f KB", Double(size) / 1024) }
+    var sizeText: String { fmtKB(size) }
 }
 
 final class CancelFlag: @unchecked Sendable {

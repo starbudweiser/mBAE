@@ -106,3 +106,8 @@ extension BethesdaArchive {
         return result
     }
 }
+
+/// Taille en kilo-octets d'après 1024, avec la décimale et l'unité de la langue : « 1,3 Ko » (fr), « 1.3 KB » (en).
+public func fmtKB(_ bytes: Int) -> String {
+    String(format: "%.1f", Double(bytes) / 1024).replacingOccurrences(of: ".", with: I18n.decimal[I18n.lang]!) + " " + I18n.units[I18n.lang]![0]
+}

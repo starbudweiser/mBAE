@@ -79,3 +79,51 @@ final class I18nTests: XCTestCase {
         XCTAssertEqual(Config.normalize("xx"), "auto")
     }
 }
+
+final class TaillesEtUpdaterTests: XCTestCase {
+    override func tearDown() { I18n.setLang("fr") }
+
+    func testTailleEnKo() {
+        I18n.setLang("fr"); XCTAssertEqual(fmtKB(1331), "1,3 Ko")
+        I18n.setLang("en"); XCTAssertEqual(fmtKB(1331), "1.3 KB")
+        I18n.setLang("es"); XCTAssertEqual(fmtKB(0), "0,0 KB")
+    }
+
+    /// Tables de textes de la fenêtre de mise à jour (Updater.swift, cible exécutable : lue dans la source) :
+    /// mêmes clés, aucun texte vide et mêmes %@ / %d dans les 4 langues.
+    func testTablesDeLUpdater() throws {
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Sources/mBAE/Updater.swift")
+        let src = try String(contentsOf: url, encoding: .utf8)
+        let start = try XCTUnwrap(src.range(of: "static let texts"))
+        let end = try XCTUnwrap(src.range(of: "static func text(", range: start.upperBound..<src.endIndex))
+        let block = String(src[start.upperBound..<end.lowerBound])
+        let langRe = try NSRegularExpression(pattern: #"^\s{8}"(fr|en|es|it)": \["#, options: .anchorsMatchLines)
+        let pairRe = try NSRegularExpression(pattern: #""([a-z_0-9]+)": "((?:[^"\\]|\\.)*)""#)
+        let heads = langRe.matches(in: block, range: NSRange(block.startIndex..., in: block))
+        XCTAssertEqual(heads.count, 4)
+        var tables: [String: [String: String]] = [:]
+        for (i, h) in heads.enumerated() {
+            let lang = String(block[Range(h.range(at: 1), in: block)!])
+            let from = Range(h.range, in: block)!.upperBound
+            let to = i + 1 < heads.count ? Range(heads[i + 1].range, in: block)!.lowerBound : block.endIndex
+            let part = String(block[from..<to])
+            var t: [String: String] = [:]
+            for m in pairRe.matches(in: part, range: NSRange(part.startIndex..., in: part)) {
+                t[String(part[Range(m.range(at: 1), in: part)!])] = String(part[Range(m.range(at: 2), in: part)!])
+            }
+            tables[lang] = t
+        }
+        let ref = try XCTUnwrap(tables["fr"])
+        XCTAssertGreaterThan(ref.count, 10)
+        let spec = try NSRegularExpression(pattern: #"%[@dlfs]+"#)
+        func specs(_ s: String) -> [String] { spec.matches(in: s, range: NSRange(s.startIndex..., in: s)).map { String(s[Range($0.range, in: s)!]) } }
+        for (lang, t) in tables {
+            XCTAssertEqual(Set(t.keys), Set(ref.keys), "clés de \(lang)")
+            for (k, v) in t {
+                XCTAssertFalse(v.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang).\(k) vide")
+                XCTAssertEqual(specs(v), specs(ref[k] ?? ""), "\(lang).\(k) : paramètres différents")
+            }
+        }
+    }
+}
