@@ -7,6 +7,10 @@
 
 💬 **Support & community:** [Discord](https://discord.gg/xdDVDPQsYs) · *Aide et communauté : [Discord](https://discord.gg/xdDVDPQsYs)*
 
+### About
+
+mBAE lists and extracts Bethesda archives (.bsa / .ba2: Skyrim, Fallout 4, Starfield). By Starbudweiser & Claude Code (Anthropic). MIT License, © 2026 Starbudweiser. Provided as is, without warranty of any kind. See **About mBAE** in the app menu.
+
 ---
 ## 🇬🇧 English
 
@@ -22,6 +26,13 @@ mBAE lists the content of Bethesda archives (Skyrim .bsa, Fallout 4 / Starfield 
 - Drag and drop an archive anywhere on the window.
 - Interface in **English, French, Italian and Spanish** (follows your Mac's language; can be changed in the app).
 
+### What's new in 1.3.1
+
+- Rewritten as a native Swift app (no more Python/PyInstaller): same archives, same extracted files. No more generic PyInstaller launcher, which antivirus scanners tend to flag.
+- Safer extraction: files with an absolute path or “..” in their internal path are skipped instead of being written outside the destination folder.
+- Language menu in the menu bar, “About” window, automatic update check.
+- The window title is translated.
+
 ### What's new in 1.3.0
 
 - BAE is renamed mBAE, like the other Skyrim Mac Toolkit apps. Because of the new name, macOS treats it as a new app: remove the old BAE.app from Applications.
@@ -32,7 +43,7 @@ mBAE lists the content of Bethesda archives (Skyrim .bsa, Fallout 4 / Starfield 
 
 ### Updates
 
-The app checks once a day whether a newer release exists on GitHub and offers to open the Nexus page, remind you later or skip that version. Nothing is downloaded or installed automatically. The full history is in [CHANGELOG.md](CHANGELOG.md).
+The app checks once a day whether a newer release exists on GitHub and offers to install it (signature checked), remind you later or skip that version. The full history is in [CHANGELOG.md](CHANGELOG.md).
 
 ### Screenshots
 
@@ -41,7 +52,7 @@ The app checks once a day whether a newer release exists on GitHub and offers to
 
 ### Requirements
 
-A Mac with **Apple Silicon** (M1 or later), **macOS 13 Ventura** or later. No Python, no Wine, no virtual machine needed.
+A Mac with **Apple Silicon** (M1 or later), **macOS 15 Sequoia** or later. No Python, no Wine, no virtual machine needed.
 
 ### Installation
 
@@ -60,7 +71,7 @@ No, mBAE only reads and extracts.
 
 ### Building from source
 
-Requires Python 3.12 with PyQt6 and PyInstaller. From the repository folder:
+Requires Xcode (Swift 6) on macOS 15 or later. From the repository folder:
 
 ```bash
 ./build_app.sh
@@ -86,6 +97,13 @@ mBAE liste le contenu des archives Bethesda (.bsa de Skyrim, .ba2 de Fallout 4 /
 - Glissez-déposez une archive n'importe où sur la fenêtre.
 - Interface en **français, anglais, italien et espagnol** (suit la langue du Mac ; modifiable dans l'appli).
 
+### Nouveautés de la 1.3.1
+
+- Réécrite en appli Swift native (plus de Python ni de PyInstaller) : mêmes archives, mêmes fichiers extraits. Plus de lanceur PyInstaller générique, souvent signalé par les antivirus.
+- Extraction plus sûre : les fichiers dont le chemin interne est absolu ou contient « .. » sont ignorés au lieu d'être écrits hors du dossier de destination.
+- Menu « Langue » dans la barre de menus, fenêtre « À propos », recherche automatique des mises à jour.
+- Le titre de la fenêtre est traduit.
+
 ### Nouveautés de la 1.3.0
 
 - BAE s'appelle désormais mBAE, comme les autres applis du Skyrim Mac Toolkit. Avec ce nouveau nom, macOS la considère comme une nouvelle appli : supprimez l'ancienne BAE.app du dossier Applications.
@@ -96,7 +114,7 @@ mBAE liste le contenu des archives Bethesda (.bsa de Skyrim, .ba2 de Fallout 4 /
 
 ### Mises à jour
 
-L'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose d'ouvrir la page Nexus, de rappeler plus tard ou d'ignorer cette version. Rien n'est téléchargé ni installé automatiquement. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
+L'appli vérifie une fois par jour si une version plus récente existe sur GitHub et propose de l'installer (signature vérifiée), de rappeler plus tard ou d'ignorer cette version. L'historique complet est dans [CHANGELOG.md](CHANGELOG.md).
 
 ### Captures d'écran
 
@@ -105,7 +123,7 @@ L'appli vérifie une fois par jour si une version plus récente existe sur GitHu
 
 ### Configuration requise
 
-Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 13 Ventura** ou plus récent. Ni Python, ni Wine, ni machine virtuelle.
+Un Mac **Apple Silicon** (M1 ou plus récent), **macOS 15 Sequoia** ou plus récent. Ni Python, ni Wine, ni machine virtuelle.
 
 ### Installation
 
@@ -124,7 +142,7 @@ Non, mBAE lit et extrait uniquement.
 
 ### Compiler depuis les sources
 
-Nécessite Python 3.12 avec PyQt6 et PyInstaller. Depuis le dossier du dépôt :
+Nécessite Xcode (Swift 6) sous macOS 15 ou plus récent. Depuis le dossier du dépôt :
 
 ```bash
 ./build_app.sh

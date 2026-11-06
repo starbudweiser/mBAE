@@ -27,3 +27,10 @@ logs/
 .env.*
 !.env.example
 ETAT.md
+
+# Swift
+.build/
+.swiftpm/
+
+# Notes de session
+PASSATION_*

@@ -1,5 +1,5 @@
 // mBAE — maquette web : lit la liste des fichiers d'une vraie archive BSA / BA2
-// (portage de BethesdaArchive dans src/BAE_MACOS.py). L'extraction est simulée.
+// (portage de BethesdaArchive dans macos/Sources/BAECore/Archive.swift). L'extraction est simulée.
 
 const MAX_ROWS = 2500;
 const $ = (id) => document.getElementById(id);

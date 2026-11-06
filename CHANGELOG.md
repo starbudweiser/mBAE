@@ -7,10 +7,16 @@ Notes de version / release notes (EN + FR). Translations in IT and ES: see the N
 **English**
 
 - The window title is now translated: “mBAE – Bethesda archive extractor”.
+- Rewritten as a native Swift app (no more Python/PyInstaller): same archives (BSA 103/104/105, BA2 GNRL/DX10, zlib and LZ4), same files extracted byte for byte. No more generic PyInstaller launcher, which antivirus scanners tend to flag.
+- Safer extraction: files whose internal path is absolute or contains “..” are skipped (and counted in the final message) instead of being written outside the destination folder.
+- Language menu in the menu bar, “About mBAE” window, and automatic update check (daily, signature verified).
 
 **Français**
 
 - Le titre de la fenêtre est maintenant traduit : « mBAE – Extracteur d'archives Bethesda ».
+- Réécrite en appli Swift native (plus de Python ni de PyInstaller) : mêmes archives (BSA 103/104/105, BA2 GNRL/DX10, zlib et LZ4), mêmes fichiers extraits octet pour octet. Plus de lanceur PyInstaller générique, souvent signalé par les antivirus.
+- Extraction plus sûre : les fichiers dont le chemin interne est absolu ou contient « .. » sont ignorés (et comptés dans le message final) au lieu d'être écrits hors du dossier de destination.
+- Menu « Langue » dans la barre de menus, fenêtre « À propos de mBAE » et recherche automatique des mises à jour (quotidienne, signature vérifiée).
 
 ## 1.3.0
 
