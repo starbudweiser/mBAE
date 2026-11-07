@@ -2,6 +2,16 @@
 
 Notes de version / release notes (EN + FR). Translations in IT and ES: see the Nexus Mods page.
 
+## 2.0.0
+
+**English**
+
+- Version number aligned across the Skyrim Mac Toolkit: every app of the kit is now a native Swift app, at version 2.0.0.
+
+**Français**
+
+- Numéro de version commun à tout le Skyrim Mac Toolkit : toutes les applis du kit sont désormais des applis Swift natives, en version 2.0.0.
+
 ## 1.3.1
 
 **English**

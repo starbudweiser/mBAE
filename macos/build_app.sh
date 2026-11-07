@@ -9,7 +9,7 @@ ROOT="$(cd "$HERE/.." && pwd)"
 OUT_DIR="${1:-$ROOT}"
 APP_NAME="mBAE"
 BUNDLE_ID="mBAE"  # inchangé d'une version à l'autre : macOS garde les autorisations
-VERSION="1.3.1"
+VERSION="2.0.0"
 ICON="$ROOT/assets/icon.icns"
 APP="$OUT_DIR/$APP_NAME.app"
 
