@@ -1,5 +1,7 @@
 # mBAE
 
+[![Listed on OpenMacApps](https://openmacapps.com/badge.svg)](https://openmacapps.com/apps/mbae/)
+
 **Bethesda Archive Extractor: open and extract .bsa and .ba2 archives on macOS.**  
 *Bethesda Archive Extractor : ouvrir et extraire les archives .bsa et .ba2 sur macOS.*
 
