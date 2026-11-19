@@ -1,7 +1,16 @@
 // mBAE — maquette web : lit la liste des fichiers d'une vraie archive BSA / BA2
 // (portage de BethesdaArchive dans macos/Sources/BAECore/Archive.swift). L'extraction est simulée.
 
+import { L, setLang, getLang, systemLang } from './i18n.js';
+
+// Langue : celle du navigateur (comme la langue du Mac dans l'appli), ou ?lang=en|fr|it|es ; anglais sinon.
+setLang(new URLSearchParams(location.search).get('lang') || systemLang());
+document.documentElement.lang = getLang();
+
 const MAX_ROWS = 2500;
+const LOCALES = { fr: 'fr-FR', en: 'en-US', it: 'it-IT', es: 'es-ES' };
+const UNIT = { fr: 'Ko', en: 'KB', it: 'KB', es: 'KB' };
+const fmtInt = (n) => n.toLocaleString(LOCALES[getLang()]);
 const $ = (id) => document.getElementById(id);
 
 const app = $('app');
@@ -30,7 +39,7 @@ async function readArchive(file) {
   const magic = latin1.decode(new Uint8Array(head.buffer, 0, 4));
   if (magic === 'BSA\0') return { type: 'BSA', files: await parseBsa(file, head) };
   if (magic === 'BTDX') return { type: 'BA2', files: await parseBa2(file, head) };
-  throw new Error("Archive non reconnue. Vérifiez qu'il s'agit bien d'un fichier .BSA ou .BA2.");
+  throw new Error(L("Archive non reconnue. Vérifiez qu'il s'agit bien d'un fichier .BSA ou .BA2."));
 }
 
 async function parseBsa(file) {
@@ -103,7 +112,7 @@ async function parseBa2(file, h) {
   const count = h.getUint32(12, true);
   const nameTable = Number(h.getBigUint64(16, true));
   const recSize = kind === 'DX10' ? 68 : 36;
-  if (kind !== 'GNRL' && kind !== 'DX10') throw new Error(`Type de BA2 non pris en charge : ${kind}.`);
+  if (kind !== 'GNRL' && kind !== 'DX10') throw new Error(L('Type de BA2 non pris en charge : {kind}.', { kind }));
 
   const recs = new DataView(await file.slice(24, 24 + count * recSize).arrayBuffer());
   const meta = [];
@@ -151,14 +160,14 @@ function demoArchive() {
       files.push({ name: `${d}/${f}`, size: Math.round((big ? 400000 : 20000) * (0.3 + rnd() * 3)), compressed: !f.endsWith('.xwm') });
     }
   }
-  return { type: 'BSA', name: 'Skyrim - Démo.bsa', files };
+  return { type: 'BSA', name: L('Skyrim - Démo.bsa'), files };
 }
 
 // ==============================================================================
 // INTERFACE
 // ==============================================================================
 
-const fmtSize = (b) => `${(b / 1024).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Ko`;
+const fmtSize = (b) => `${(b / 1024).toLocaleString(LOCALES[getLang()], { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ${UNIT[getLang()]}`;
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function setStatus(text, tone) {
@@ -184,12 +193,12 @@ function render() {
     const slash = f.name.lastIndexOf('/');
     const path = slash >= 0 ? `<span>${esc(f.name.slice(0, slash + 1))}</span>${esc(f.name.slice(slash + 1))}` : esc(f.name);
     const badge = f.compressed
-      ? '<span class="sc-badge sc-badge--accent">Compressé</span>'
-      : '<span class="sc-badge">Brut</span>';
+      ? `<span class="sc-badge sc-badge--accent">${esc(L('Compressé'))}</span>`
+      : `<span class="sc-badge">${esc(L('Brut'))}</span>`;
     return `<tr data-i="${i}"${i === selected ? ' class="is-selected"' : ''}><td class="path" title="${esc(f.name)}">${path}</td><td class="num">${fmtSize(f.size)}</td><td>${badge}</td></tr>`;
   }).join('');
   if (archive.files.length > MAX_ROWS) {
-    html += `<tr class="more"><td colspan="3">${(archive.files.length - MAX_ROWS).toLocaleString('fr-FR')} fichiers supplémentaires non affichés. Ils seront tous extraits.</td></tr>`;
+    html += `<tr class="more"><td colspan="3">${esc(L('{n} fichiers supplémentaires non affichés. Ils seront tous extraits.', { n: fmtInt(archive.files.length - MAX_ROWS) }))}</td></tr>`;
   }
   rows.innerHTML = html;
   document.querySelectorAll('.files th').forEach((th) => {
@@ -202,28 +211,27 @@ function show(a) {
   archive = a;
   selected = -1;
   sort = { key: null, dir: 1 };
-  const n = a.files.length.toLocaleString('fr-FR');
-  info.innerHTML = `<b>${esc(a.name)}</b> — ${a.type} (${n} fichiers)`;
+  info.innerHTML = L('{name} — {type} ({n} fichiers)', { name: `<b>${esc(a.name)}</b>`, type: a.type, n: fmtInt(a.files.length) });
   drop.hidden = true;
   tableWrap.hidden = false;
   tableWrap.scrollTop = 0;
   render();
   setProgress(0);
-  setStatus("Prêt pour l'extraction. Aucun fichier d'origine n'est modifié.", 'accent');
+  setStatus(L("Prêt pour l'extraction. Aucun fichier d'origine n'est modifié."), 'accent');
   btnExtract.disabled = a.files.length === 0;
 }
 
 async function load(file) {
   if (!/\.(bsa|ba2)$/i.test(file.name)) {
-    setStatus(`Impossible d'ouvrir ${file.name}. Choisissez un fichier .BSA ou .BA2.`, 'danger');
+    setStatus(L('Impossible d\'ouvrir {name}. Choisissez un fichier .BSA ou .BA2.', { name: file.name }), 'danger');
     return;
   }
-  setStatus('Lecture de l\'archive…');
+  setStatus(L('Lecture de l\'archive…'));
   try {
     const a = await readArchive(file);
     show({ ...a, name: file.name });
   } catch (e) {
-    setStatus(`Impossible de lire l'archive. ${e.message}`, 'danger');
+    setStatus(L('Impossible de lire l\'archive. {err}', { err: e.message }), 'danger');
   }
 }
 
@@ -231,14 +239,14 @@ function extract() {
   if (!archive) return;
   const total = archive.files.length;
   btnExtract.disabled = btnOpen.disabled = true;
-  setStatus('Extraction en cours…', 'accent');
+  setStatus(L('Extraction en cours…'), 'accent');
   let done = 0;
   const step = Math.max(1, Math.ceil(total / 60));
   const tick = () => {
     done = Math.min(total, done + step);
     setProgress(Math.round((done / total) * 100));
     if (done < total) return setTimeout(tick, 30);
-    setStatus(`Extraction terminée : ${total.toLocaleString('fr-FR')} fichiers extraits (simulation).`, 'success');
+    setStatus(L('Extraction terminée : {n} fichiers extraits (simulation).', { n: fmtInt(total) }), 'success');
     btnExtract.disabled = btnOpen.disabled = false;
   };
   tick();
@@ -281,10 +289,23 @@ window.addEventListener('drop', (e) => {
 const btnTheme = $('btnTheme');
 function applyTheme(t) {
   document.documentElement.dataset.theme = t;
-  btnTheme.textContent = t === 'dark' ? 'Thème clair' : 'Thème sombre';
+  btnTheme.textContent = L(t === 'dark' ? 'Thème clair' : 'Thème sombre');
   try { localStorage.setItem('bae-theme', t); } catch {}
 }
 let saved = null;
 try { saved = localStorage.getItem('bae-theme'); } catch {}
 applyTheme(saved || 'dark');
 btnTheme.addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+// Textes fixes de la page (clés de i18n/strings.json)
+const fixed = {
+  '#btnOpen': '📦 Ouvrir une archive (.BSA / .BA2)',
+  '#info': "Ouvrez ou glissez-déposez une archive n'importe où dans la fenêtre.",
+  '#btnDemo': 'Charger une démo',
+  '.drop__title': 'Déposez une archive ici',
+  'th[data-sort="name"]': 'Chemin du fichier', 'th[data-sort="size"]': 'Taille brute', 'th[data-sort="compressed"]': 'Compression',
+  '#status': 'En attente', '#btnExtract': 'Extraire tout',
+};
+for (const [sel, key] of Object.entries(fixed)) document.querySelector(sel).textContent = L(key);
+document.querySelector('.drop__hint').innerHTML =
+  `${esc(L('Formats pris en charge : .BSA (Oblivion à Skyrim SE) et .BA2 (Fallout 4, Starfield).'))}<br>${esc(L("La lecture se fait dans le navigateur, aucun fichier n'est envoyé."))}`;
