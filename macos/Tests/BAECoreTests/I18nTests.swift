@@ -27,6 +27,18 @@ final class I18nTests: XCTestCase {
                 keys.insert(k)
             }
         }
+        // P(n, "un", "plusieurs") : formes singulier et pluriel (I18n.swift est exclu du balayage ci-dessus).
+        let plural = try NSRegularExpression(pattern: #"(?<![A-Za-z_.])P\([^,]+,\s*"((?:[^"\\]|\\.)*)",\s*"((?:[^"\\]|\\.)*)""#)
+        for case let url as URL in FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)! where url.lastPathComponent == "I18n.swift" {
+            let text = try String(contentsOf: url, encoding: .utf8)
+            for m in plural.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+                for g in 1...2 { keys.insert(String(text[Range(m.range(at: g), in: text)!])) }
+            }
+        }
+        // Textes utilisés seulement par l'aperçu web (web/app.js, web/index.html) : lus dans le même JSON.
+        let web = root.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("web")
+        let webText = ["app.js", "index.html"].compactMap { try? String(contentsOf: web.appendingPathComponent($0), encoding: .utf8) }.joined(separator: "\n")
+        for k in translations.keys where webText.contains(k) || webText.contains(k.replacingOccurrences(of: "'", with: "\\'")) { keys.insert(k) }
         return keys
     }
 
